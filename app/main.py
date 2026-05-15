@@ -15,7 +15,7 @@ class IntegerRange:
             raise TypeError
         if value < self.min_value or value > self.max_value:
             raise ValueError
-        setattr(instance, self.name, value)
+        object.__setattr__(instance, self.name, value)
 
     def __set_name__(self, owner: type, name: str) -> None:
         self.name = name
@@ -54,14 +54,14 @@ class Slide:
         self.limitation_class = limitation_class
 
     def can_access(self, visitor: Visitor) -> bool:
-        limitation = self.limitation_class(
-            visitor.age,
-            visitor.height,
-            visitor.weight)
-        try:
-            limitation.age = visitor.age
-            limitation.height = visitor.height
-            limitation.weight = visitor.weight
-            return True
-        except (TypeError, ValueError):
+        limitation = self.limitation_class(0, 0, 0)
+        age_limit = self.limitation_class.__dict__["age"]
+        height_limit = self.limitation_class.__dict__["height"]
+        weight_limit = self.limitation_class.__dict__["weight"]
+        if not (age_limit.min_value <= visitor.age <= age_limit.max_value):
             return False
+        if not (height_limit.min_value <= visitor.height <= height_limit.max_value):
+            return False
+        if not (weight_limit.min_value <= visitor.weight <= weight_limit.max_value):
+            return False
+        return True
