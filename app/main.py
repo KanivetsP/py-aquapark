@@ -8,7 +8,9 @@ class IntegerRange:
         self.max_value = max_amount
 
     def __get__(self, instance: Any, owner: type) -> int:
-        return getattr(instance, self.name)
+        if instance is None:
+            return self
+        return object.__getattribute__(instance, self.name)
 
     def __set__(self, instance: Any, value: int) -> None:
         if not isinstance(value, int):
@@ -18,7 +20,7 @@ class IntegerRange:
         object.__setattr__(instance, self.name, value)
 
     def __set_name__(self, owner: type, name: str) -> None:
-        self.name = name
+        self.name = f"_{name}"
 
 
 class Visitor:
@@ -54,17 +56,8 @@ class Slide:
         self.limitation_class = limitation_class
 
     def can_access(self, visitor: Visitor) -> bool:
-        age_limit = self.limitation_class.__dict__["age"]
-        height_limit = self.limitation_class.__dict__["height"]
-        weight_limit = self.limitation_class.__dict__["weight"]
-        if not (age_limit.min_value <= visitor.age <= age_limit.max_value):
-            return False
-        if not (
-                height_limit.min_value <= visitor.height <= height_limit.max_value
-        ):
-            return False
-        if not (
-                weight_limit.min_value <= visitor.weight <= weight_limit.max_value
-        ):
+        try:
+            self.limitation_class(visitor.age, visitor.height, visitor.weight)
+        except (TypeError, ValueError):
             return False
         return True
