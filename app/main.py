@@ -14,9 +14,9 @@ class IntegerRange:
 
     def __set__(self, instance: Any, value: int) -> None:
         if not isinstance(value, int):
-            raise TypeError("Some informative message.")
+            raise TypeError("Value must be integer.")
         if value < self.min_value or value > self.max_value:
-            raise ValueError("Some informative message.")
+            raise ValueError("value out of range.")
         object.__setattr__(instance, self.name, value)
 
     def __set_name__(self, owner: type, name: str) -> None:
